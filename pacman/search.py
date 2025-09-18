@@ -88,28 +88,28 @@ def depthFirstSearch(search_problem):
 
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
-
+"""
     print("Start:", search_problem.getStartState())
     print("Is the start a goal?", search_problem.isGoalState(search_problem.getStartState()))
     print("Start's successors:", search_problem.getSuccessors(search_problem.getStartState()))
-    """
+    
     structure = util.Stack()
-    structure.push("""YOUR CODE HERE""") # DEFINE THE INITIAL STATE
+    structure.push((search_problem.getStartState(), [], 0)) # DEFINE THE INITIAL STATE
     visited = []
 
     while not structure.isEmpty():
         path = structure.pop()
-        current_state = """YOUR CODE HERE""" # INDEX THE CURRENT STATE
+        current_state = path[0] # INDEX THE CURRENT STATE
 
         if search_problem.isGoalState(current_state):
-            return """YOUR CODE HERE""" # RETURN THE PATH OF STATES
+            return path[1] # RETURN THE PATH OF STATES
 
         if current_state not in visited:
             visited.append(current_state)
 
             for successor in search_problem.getSuccessors(current_state):
                 if successor[0] not in visited:
-                    new_path = """YOUR CODE HERE""" # CREATE THE NEW PATH OF STATES
+                    new_path = (successor[0], path[1] + [successor[1]], path[2] + successor[2])  # CREATE THE NEW PATH OF STATES
                     structure.push(new_path)
 
     return None
