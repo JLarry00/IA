@@ -92,8 +92,30 @@ def depthFirstSearch(search_problem):
     print("Start:", search_problem.getStartState())
     print("Is the start a goal?", search_problem.isGoalState(search_problem.getStartState()))
     print("Start's successors:", search_problem.getSuccessors(search_problem.getStartState()))
+    return genericSearch(search_problem, util.Stack())
     
-    structure = util.Stack()
+#    structure = util.Stack()
+#    structure.push((search_problem.getStartState(), [], 0)) # DEFINE THE INITIAL STATE
+#    visited = []
+#
+#    while not structure.isEmpty():
+#        path = structure.pop()
+#        current_state = path[0] # INDEX THE CURRENT STATE
+#
+#        if search_problem.isGoalState(current_state):
+#            return path[1] # RETURN THE PATH OF STATES
+#
+#        if current_state not in visited:
+#            visited.append(current_state)
+#
+#            for successor in search_problem.getSuccessors(current_state):
+#                if successor[0] not in visited:
+#                    new_path = (successor[0], path[1] + [successor[1]], path[2] + successor[2])  # CREATE THE NEW PATH OF STATES
+#                    structure.push(new_path)
+#
+#    return None
+
+def genericSearch(search_problem, structure):
     structure.push((search_problem.getStartState(), [], 0)) # DEFINE THE INITIAL STATE
     visited = []
 
@@ -118,7 +140,7 @@ def depthFirstSearch(search_problem):
 def breadthFirstSearch(search_problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return genericSearch(search_problem, util.Queue())
 
 
 def uniformCostSearch(search_problem):
