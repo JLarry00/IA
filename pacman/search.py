@@ -89,9 +89,11 @@ def depthFirstSearch(search_problem):
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
 """
+    """
     print("Start:", search_problem.getStartState())
     print("Is the start a goal?", search_problem.isGoalState(search_problem.getStartState()))
     print("Start's successors:", search_problem.getSuccessors(search_problem.getStartState()))
+    """
     return genericSearch(search_problem, util.Stack())
 
 def genericSearch(search_problem, structure):
