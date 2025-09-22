@@ -124,9 +124,12 @@ def breadthFirstSearch(search_problem):
 
 def uniformCostSearch(search_problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
+    """*** YOUR CODE HERE ***"""
+    """path[0]: estado actual
+       path[1]: lista de acciones tomadas hasta aquí
+       path[2]: coste acumulado de ese camino """
+    #lambda argumentos: expresión
+    return genericSearch(search_problem, util.PriorityQueueWithFunction(lambda path: path[2]))
 
 def nullHeuristic(state, search_problem=None):
     """

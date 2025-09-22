@@ -213,7 +213,7 @@ class PriorityQueueWithFunction(PriorityQueue):
     extracts each item's priority.
     """
     def  __init__(self, priorityFunction):
-        "priorityFunction (item) -> priority"
+        "priorityFunction (item) -> priority"         #recibe un numero y menor = mejor
         self.priorityFunction = priorityFunction      # store the priority function
         PriorityQueue.__init__(self)        # super-class initializer
 
