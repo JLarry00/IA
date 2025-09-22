@@ -77,26 +77,21 @@ def tinyMazeSearch(search_problem):
     s = Directions.SOUTH
     w = Directions.WEST
     return [s, s, w, s, w, w, s, w]
+    
 
-
-def depthFirstSearch(search_problem):
+def genericSearch(search_problem, structure):
     """
-    Search the deepest nodes in the search tree first.
-
     Your search algorithm needs to return a list of actions that reaches the
     goal. Make sure to implement a graph search algorithm.
 
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
-"""
+    """
     """
     print("Start:", search_problem.getStartState())
     print("Is the start a goal?", search_problem.isGoalState(search_problem.getStartState()))
     print("Start's successors:", search_problem.getSuccessors(search_problem.getStartState()))
     """
-    return genericSearch(search_problem, util.Stack())
-
-def genericSearch(search_problem, structure):
     structure.push((search_problem.getStartState(), [], 0)) # DEFINE THE INITIAL STATE
     visited = []
 
@@ -116,6 +111,12 @@ def genericSearch(search_problem, structure):
                     structure.push(new_path)
 
     return None
+
+
+def depthFirstSearch(search_problem):
+    """Search the deepest nodes in the search tree first."""
+    """*** YOUR CODE HERE ***"""
+    return genericSearch(search_problem, util.Stack())
 
 
 def breadthFirstSearch(search_problem):
@@ -144,7 +145,8 @@ def nullHeuristic(state, search_problem=None):
 def aStarSearch(search_problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    """util.raiseNotDefined()"""
+    return genericSearch(search_problem, util.PriorityQueueWithFunction(lambda path: path[2] + heuristic(path[0], search_problem)))
 
 
 # Abbreviations
