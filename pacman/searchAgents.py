@@ -371,7 +371,6 @@ class CornersProblem(search.SearchProblem):
         # in initializing the problem
         "*** YOUR CODE HERE ***"
 
-
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
@@ -405,13 +404,17 @@ class CornersProblem(search.SearchProblem):
             "*** YOUR CODE HERE ***"
             x,y = received_state[0]
             visitedCorners = list(received_state[1])
+
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
+
             if not self.walls[nextx][nexty]:
                 nextState = ((nextx, nexty), visitedCorners)
+                cost = 1
+
                 if (nextState[0] in self.corners) and (nextState[0] not in visitedCorners):
                     nextState[1].append(tuple(nextState[0]))
-                cost = 1
+
                 successors.append((nextState, action, cost))
             
         self._expanded += 1  # DO NOT CHANGE
