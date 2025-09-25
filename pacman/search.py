@@ -98,18 +98,22 @@ def genericSearch(search_problem, structure):
     while not structure.isEmpty():
         path = structure.pop()
         current_state = path[0] # INDEX THE CURRENT STATE
-
+        #print(path)
+        print(current_state)
         if search_problem.isGoalState(current_state):
             return path[1] # RETURN THE PATH OF STATES
 
         if current_state not in visited:
             visited.append(current_state)
-
-            for successor in search_problem.getSuccessors(current_state):
+            successors = search_problem.getSuccessors(current_state)
+            print(successors)
+            for successor in successors:
+                #print(visited)
+                #print(successor[0])
                 if successor[0] not in visited:
                     new_path = (successor[0], path[1] + [successor[1]], path[2] + successor[2])  # CREATE THE NEW PATH OF STATES
                     structure.push(new_path)
-
+    print("no encontrada solución")
     return None
 
 
