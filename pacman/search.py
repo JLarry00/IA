@@ -99,14 +99,14 @@ def genericSearch(search_problem, structure):
         path = structure.pop()
         current_state = path[0] # INDEX THE CURRENT STATE
         #print(path)
-        print(current_state)
+        #print(current_state)
         if search_problem.isGoalState(current_state):
             return path[1] # RETURN THE PATH OF STATES
 
         if current_state not in visited:
             visited.append(current_state)
             successors = search_problem.getSuccessors(current_state)
-            print(successors)
+            #print(successors)
             for successor in successors:
                 #print(visited)
                 #print(successor[0])

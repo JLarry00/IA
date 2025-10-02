@@ -47,6 +47,10 @@ import time
 import search
 
 
+def manhattan(x1, y1, x2, y2):
+    return abs(x1 - x2) + abs(y1 - y2)
+
+
 class GoWestAgent(Agent):
     "An agent that goes West until it can't."
 
@@ -56,6 +60,7 @@ class GoWestAgent(Agent):
             return Directions.WEST
         else:
             return Directions.STOP
+
 
 #######################################################
 # This portion is written for you, but will only work #
@@ -454,8 +459,17 @@ def cornersHeuristic(cur_state, problem):
     walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0  # Default to trivial solution
+    # c = closest corner con manhattan
+    # los siguientes más cercanos con manhattan
+    corners_left = [c for c in corners if c not in cur_state[1]]
+    if len(corners_left) == 0:
+        return 0
 
+    x, y = cur_state[0]
+
+    #usar BFS con los corners_left para encontrar el camino más corto
+
+    return 0
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
