@@ -39,9 +39,12 @@ description for details.
 Good luck and happy searching!
 """
 
+from curses import curs_set
+import numpy as np
 from game import Directions
 from game import Agent
 from game import Actions
+from math import *
 import util
 import time
 import search
@@ -459,17 +462,48 @@ def cornersHeuristic(cur_state, problem):
     walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    # c = closest corner con manhattan
-    # los siguientes más cercanos con manhattan
+
     corners_left = [c for c in corners if c not in cur_state[1]]
+
     if len(corners_left) == 0:
         return 0
 
-    x, y = cur_state[0]
+    cur_pos = cur_state[0]  # current coordinates x, y
+    edges = {c: [c1 for c1 in corners_left if c1 != c] for c in corners_left}   #edges from corners to other corners
+    edges[cur_pos] = corners_left   #final edges from initial position to all corners left to visit
 
-    #usar BFS con los corners_left para encontrar el camino más corto
+    # BFS con los corners_left para encontrar todos los caminos posibles
+    # La condicion de parada es que se han recorrido todos los caminos posibles entre las esquinas que quedan (factorial)
+    queue = util.Queue()
+    queue.push((cur_pos, [], 0))
+    visited = []
+    values = []
 
-    return 0
+    while not queue.isEmpty() and len(values) < factorial(len(corners_left)):
+        path = queue.pop()
+        corner = path[0]
+
+        # Longitud del camino recorrido igual a la cantidad de esquinas a recorrer (camino completado)
+        if len(path[1]) == len(corners_left):
+            values.append(path[2])
+
+        successors = []
+        for c in edges[corner]:
+            successors.append((c, path[1], path[2]))
+
+        for successor in successors:
+            # Si no se ha pasado ya por esa esquina
+            if successor[0] not in path[1]:
+                new_path = (successor[0], path[1] + [corner], path[2] + manhattan(corner[0], corner[1], successor[0][0], successor[0][1]))  # CREATE THE NEW PATH OF STATES
+                queue.push(new_path)
+    
+    # Se busca el valor más bajo (búsqueda rápida porque el máximo de valores es 24)
+    result = np.inf
+    for v in values:
+        if result > v:
+            result = v
+
+    return result
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
