@@ -1,0 +1,10 @@
+MEMORIA PRÁCTICA 1
+Juan Larrondo y Abril Palanco
+Grupo: 1311
+
+A.1 Búsqueda en profundidad
+ A.1.1 Que el algoritmo de búsqueda en profundidad sea completo significa que siempre que la solución exista el algoritmo dará con ella. Aplicado a nuestro caso particular del laberinto como se exploran todos los nodos nivel por nivel por lo que aunque puede que no sea eficiente en memoria y tiempo de ejecución siempre llegará a la solución. 
+
+A.1.2 En el momento en el que en BP se permite inspeccionar nodos ya visitados corremos el riesgo de quedar atrapados en un bucle infinito en el caso de los grafos que contengan ciclos. 
+Supongamos que un grafo A?B?C?A contiene un ciclo. Si bien es cierto que A ya fue visitado lo volverá a marcar como nuevo y lo seguirá explorando infinitamente. 
+SALIDA: 
