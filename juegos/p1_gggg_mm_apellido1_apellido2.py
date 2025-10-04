@@ -27,6 +27,15 @@ class Solution1(StudentHeuristic):
 
 
 class Solution2(StudentHeuristic):
+    def get_name() -> str:
+        return "solution2"
+
+    def evaluation_function(self, state: TwoPlayerGameState) -> float:
+        # let's use a global function
+        return func_glob(2, state)
+
+
+class Solution3(StudentHeuristic):
     def get_name(self) -> str:
         return "solution2"
 

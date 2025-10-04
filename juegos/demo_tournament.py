@@ -17,7 +17,7 @@ from reversi import (
     from_array_to_dictionary_board,
 )
 from tournament import StudentHeuristic, Tournament
-
+import p1_gggg_mm_apellido1_apellido2 as p
 
 class Heuristic1(StudentHeuristic):
 
@@ -35,10 +35,10 @@ class Heuristic1(StudentHeuristic):
 class Heuristic2(StudentHeuristic):
 
     def get_name(self) -> str:
-        return "random"
+        return p.Solution1().get_name()
 
     def evaluation_function(self, state: TwoPlayerGameState) -> float:
-        return float(np.random.rand())
+        return p.Solution1().evaluation_function(state)
 
 
 class Heuristic3(StudentHeuristic):
