@@ -75,8 +75,8 @@ player_alphabeta2 = Player(
 )
 
 ## If you want to play against one of your heuristics, you should do the following
-from p2_gggg_mm_apellido1_apellido2 import Solution1  # import your StudentHeuristic here
-my_heuristic = Solution1() # instantiate your heuristic here
+from p1_gggg_mm_apellido1_apellido2 import Solution2  # import your StudentHeuristic here
+my_heuristic = Solution2() # instantiate your heuristic here
 my_player = Player(
     name=my_heuristic.get_name(),
     strategy=MinimaxStrategy(  # MinimaxAlphaBetaStrategy(
@@ -95,7 +95,7 @@ my_player = Player(
 # Manual vs minimax player
 # player_a, player_b = player_manual, player_minimax4
 
-# minimax alpha-beta vs minimax alpha-beta player
+# minimax vs minimax player
 player_a, player_b = player_minimax4, player_minimax3
 
 # minimax alpha-beta vs minimax alpha-beta player

@@ -35,19 +35,19 @@ class Heuristic1(StudentHeuristic):
 class Heuristic2(StudentHeuristic):
 
     def get_name(self) -> str:
-        return p.Solution1().get_name()
+        return p.Solution2().get_name()
 
     def evaluation_function(self, state: TwoPlayerGameState) -> float:
-        return p.Solution1().evaluation_function(state)
+        return p.Solution2().evaluation_function(state)
 
 
 class Heuristic3(StudentHeuristic):
 
     def get_name(self) -> str:
-        return "heuristic"
+        return p.Solution3().get_name()
 
     def evaluation_function(self, state: TwoPlayerGameState) -> float:
-        return simple_evaluation_function(state)
+        return p.Solution3().evaluation_function(state)
 
 
 def create_reversi_match(player1: Player, player2: Player) -> TwoPlayerMatch:
@@ -125,7 +125,7 @@ strats = {'opt1': [Heuristic1], 'opt2': [Heuristic2], 'opt3': [Heuristic3]}
 # folder_name = "folder_strat" # name of the folder where the strategy files are located
 # strats = tour.load_strategies_from_folder(folder=folder_name, max_strat=3)
 
-n = 1
+n = 100
 scores, totals, names = tour.run(
     student_strategies=strats,
     increasing_depth=False,
