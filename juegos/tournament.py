@@ -110,7 +110,7 @@ class Tournament(object):
                     for player2 in strats2:
                         # we now instantiate the players
                         for pair in range(2*n_pairs):
-                            player1_first = (pair % 2) == 1
+                            player1_first = True #(pair % 2) == 1
                             sh1 = player1()
                             name1 = student1 + "_" + sh1.get_name()
                             name_mapping[name1] = sh1.get_name()
