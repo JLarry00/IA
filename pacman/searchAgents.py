@@ -377,22 +377,36 @@ class CornersProblem(search.SearchProblem):
         self._expanded = 0  # DO NOT CHANGE; Number of search nodes expanded
         # Please add any code here which you would like to use
         # in initializing the problem
-        "*** YOUR CODE HERE ***"
+        # Estado: ((x, y), visitedCornersTuple)
+        # visitedCornersTuple: tupla de 4 booleanos en el orden de self.corners
+        visited = []
+        for corner in self.corners:
+            visited.append(self.startingPosition == corner)
+        self.startVisitedCorners = tuple(visited)
 
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
+<<<<<<< Updated upstream
         "*** YOUR CODE HERE ***"
         return (self.startingPosition, ())
+=======
+        return (self.startingPosition, self.startVisitedCorners)
+>>>>>>> Stashed changes
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
+<<<<<<< Updated upstream
         "*** YOUR CODE HERE ***"
         return len(state[1]) == 4
+=======
+        # Meta: todas las esquinas visitadas
+        return all(state[1])
+>>>>>>> Stashed changes
 
     def getSuccessors(self, received_state):
         """
@@ -413,6 +427,7 @@ class CornersProblem(search.SearchProblem):
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
+<<<<<<< Updated upstream
             "*** YOUR CODE HERE ***"
             visited_corners = list(received_state[1])
             x,y = received_state[0]
@@ -425,6 +440,18 @@ class CornersProblem(search.SearchProblem):
                 if (nextx,nexty) not in visited_corners and (nextx,nexty) in self.corners:
                     visited_corners.append((nextx,nexty))
                 successors.append((((nextx, nexty), tuple(visited_corners)), action, 1))
+=======
+            x, y = received_state[0]
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                nextPos = (nextx, nexty)
+                visited = list(received_state[1])
+                for idx, corner in enumerate(self.corners):
+                    if nextPos == corner:
+                        visited[idx] = True
+                successors.append(((nextPos, tuple(visited)), action, 1))
+>>>>>>> Stashed changes
 
         self._expanded += 1  # DO NOT CHANGE
         return successors
@@ -461,7 +488,46 @@ def cornersHeuristic(cur_state, problem):
     corners = problem.corners  # These are the corner coordinates
     walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
 
+<<<<<<< Updated upstream
     "*** YOUR CODE HERE ***"
+=======
+    # Estado: (pos, visitedCorners)
+    position, visitedCorners = cur_state
+    # Esquinas restantes
+    remaining = [corner for idx, corner in enumerate(corners) if not visitedCorners[idx]]
+    if not remaining:
+        return 0
+
+    # Distancia mínima desde la posición actual a cualquier esquina restante
+    def manhattan(a, b):
+        return abs(a[0] - b[0]) + abs(a[1] - b[1])
+
+    start_to_corner = min(manhattan(position, c) for c in remaining)
+
+    # Cota inferior adicional: MST sobre las esquinas restantes con distancias Manhattan (Prim)
+    # Construimos MST costo mínimo; esto es admisible y consistente.
+    unvisited = set(remaining)
+    # Inicializa con un nodo arbitrario
+    current = next(iter(unvisited))
+    unvisited.remove(current)
+    mst_cost = 0
+    while unvisited:
+        best_edge = None
+        best_cost = None
+        for u in list(unvisited):
+            # coste al árbol actual = min distancia a cualquiera de los ya conectados
+            # Para evitar guardar el conjunto conectado completo, aproximamos
+            # conectando desde 'current' (sigue siendo cota inferior válida usando Manhattan)
+            cost = manhattan(current, u)
+            if best_cost is None or cost < best_cost:
+                best_cost = cost
+                best_edge = u
+        mst_cost += best_cost
+        current = best_edge
+        unvisited.remove(best_edge)
+
+    return start_to_corner + mst_cost
+>>>>>>> Stashed changes
 
     corners_left = [c for c in corners if c not in cur_state[1]]
 
