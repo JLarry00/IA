@@ -1,5 +1,3 @@
-from dis import Positions
-import numpy as np
 from typing import Callable, Sequence, Tuple, Set
 from game import (
     TwoPlayerGameState,
@@ -15,10 +13,8 @@ from tournament import (
 def func_glob(n: int, state: TwoPlayerGameState) -> float:
     return n + simple_evaluation_function(state)
 
-dirs8 = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, 1), (-1, 1), (1, -1)]
-    # Pares de direcciones opuestas a comprobar (N-S, W-E, NW-SE, NE-SW)
-direction_pairs = [((-1, 0), (1, 0)), ((0, -1), (0, 1)),
-    ((-1, -1), (1, 1)), ((-1, 1), (1, -1))]
+# Pares de direcciones opuestas a comprobar (N-S, W-E, NW-SE, NE-SW)
+direction_pairs = [((-1, 0), (1, 0)), ((0, -1), (0, 1)), ((-1, -1), (1, 1)), ((-1, 1), (1, -1))]
 
 def _ray_all_same_or_reaches_stable(board, start: Tuple[int, int], dx: int, dy: int,
     player_label: str, stable_set: Set[Tuple[int, int]],
@@ -134,21 +130,18 @@ class Solution1(StudentHeuristic):
 class Solution2(StudentHeuristic):
     
     def get_name(self) -> str:
-        return "solution2"
+        return "SOLUCION-J"
 
     def evaluation_function(self, state: TwoPlayerGameState) -> float:
         # Si estado final, gana la que más casillas tenga
         if state.end_of_game:
             scores = state.scores
             return scores[0] - scores[1] if state.is_player_max(state.player1) else scores[1] - scores[0]
-        
 
         # PESOS DE CADA PARÁMETRO
-        w_mobility = 1.0                # Peso para movimientos válidos
+        w_mobility = 2.0                # Peso para movimientos válidos
         w_corners = 3.0                 # Peso para esquinas
-        w_x_squares = w_corners*0.4     # Peso para las X_squares
-        w_score = 0.0                   # Peso para el conteo total de piezas
-        w_stability = 2                 # Peso para la estabilidad del tablero
+        w_stability = 2.0               # Peso para la estabilidad del tablero
         
         # Determinar quién es MAX (optimización: evitar múltiples llamadas)
         p1_max = state.is_player_max(state.player1)
@@ -160,7 +153,6 @@ class Solution2(StudentHeuristic):
         
         # Pre-calcular posiciones estratégicas
         corners = [(1, 1), (1, height), (width, 1), (width, height)]
-        x_squares = [(2, 2), (2, height-1), (width-1, 2), (width-1, height-1)]
         
         # Obtener movimientos válidos (una sola llamada por jugador)
         valid_moves_p1 = state.game._get_valid_moves(board, state.game.player1.label)
@@ -185,71 +177,27 @@ class Solution2(StudentHeuristic):
                 p2_corners += 1
         # Calcular esquinas normalizadas de [0-100]
         if p1_corners + p2_corners == 0:
-
             corners_diff = 0
         else:
             corners_diff = (100 *
             ((p1_corners - p2_corners) / 
             (p1_corners + p2_corners)))
         
-        # Contar X squares eficientemente
-        p1_x_squares = 0
-        p2_x_squares = 0
-        for sq in x_squares:
-            piece = board.get(sq)
-            if piece == state.game.player1.label:
-                p1_x_squares += 1
-            elif piece == state.game.player2.label:
-                p2_x_squares += 1
-        # Calcular X squares normalizadas de [0-100]
-        if p1_x_squares + p2_x_squares == 0:
-
-            x_squares_diff = 0
-        else:
-            x_squares_diff = (100 *
-            ((p1_x_squares - p2_x_squares) / 
-            (p1_x_squares + p2_x_squares)))
-        
-        # Contar piezas totales eficientemente
-        scores = state.scores
-        # Calcular piezas totales normalizadas de [0-100]
-        if scores[0] + scores[1] == 0:
-
-            score = 0
-        else:
-            score = (100 *
-            ((scores[0] - scores[1]) / 
-            (scores[0] + scores[1])))
-        
+        # Calcular estabilidad normalizada a [0-100]
         stab_norm = stability_component(state, perspective_label=state.game.player1.label)
         
-        # Calcular peso dinámico para X squares según la etapa de la partida
-        if moves_made < 20:
-            w_score *= 0.0
+        # Calcular pesos según la etapa de la partida
+        max = width*height - 4
+        if moves_made < max*(40/60):
             w_mobility *= 1.0
-            w_x_squares *= 1.0      # X squares muy malos al inicio
-            w_stability *= 0.0
-        elif moves_made < 40:
-            w_score *= 0.1
-            w_mobility *= 0.5
-            w_x_squares *= 0.7      # X squares malos en etapa media
-            w_stability *= 0.3
-        elif moves_made < 50:
-            w_score *= 0.5
-            w_mobility *= 0.1
-            w_x_squares *= 0.2      # X squares menos malos en etapa tardía
-            w_stability *= 0.7
+            w_stability *= 0.2
         else:
-            w_score *= 1.0
             w_mobility *= 0.0
-            w_x_squares *= 0.0      # X squares neutrales al final
             w_stability *= 1.0
         
         # Calcular evaluación final
         evaluation = (w_mobility * mobility + 
                      w_corners * corners_diff + 
-                     w_x_squares * (-x_squares_diff) + 
-                     w_score * score + 
                      w_stability * stab_norm)
         
         # Aplicar perspectiva del jugador MAX
@@ -257,8 +205,177 @@ class Solution2(StudentHeuristic):
 
 class Solution3(StudentHeuristic):
     def get_name(self) -> str:
-        return "solution3"
+        return "MCW"
+
+    def evaluation_function(self, state: TwoPlayerGameState) -> float:
+        # Si estado final, gana la que más casillas tenga
+        if state.end_of_game:
+            scores = state.scores
+            return scores[0] - scores[1] if state.is_player_max(state.player1) else scores[1] - scores[0]
+        
+
+        # PESOS DE CADA PARÁMETRO
+        w_mobility = 1.0                # Peso para movimientos válidos
+        w_corners = 3.0                 # Peso para esquinas
+        w_x_squares = 0.0               # Peso para las X_squares
+        w_score = 0.0                   # Peso para el conteo total de piezas
+        w_stability = 0.0               # Peso para la estabilidad del tablero
+        
+        # Determinar quién es MAX (optimización: evitar múltiples llamadas)
+        p1_max = state.is_player_max(state.player1)
+        
+        # Obtener datos del tablero una sola vez
+        board = state.board
+        height, width = state.game.height, state.game.width
+        moves_made = len(board) - 4
+        
+        # Pre-calcular posiciones estratégicas
+        corners = [(1, 1), (1, height), (width, 1), (width, height)]
+#        x_squares = [(2, 2), (2, height-1), (width-1, 2), (width-1, height-1)]
+        
+        # Obtener movimientos válidos (una sola llamada por jugador)
+        valid_moves_p1 = state.game._get_valid_moves(board, state.game.player1.label)
+        valid_moves_p2 = state.game._get_valid_moves(board, state.game.player2.label)
+        
+        # Calcular movilidad normalizada de [0-100]
+        if valid_moves_p1 + valid_moves_p2 == 0:
+            mobility = 0
+        else:
+            mobility = (100 *
+            ((len(valid_moves_p1) - len(valid_moves_p2)) / 
+            (len(valid_moves_p1) + len(valid_moves_p2))))
+        
+        # Contar esquinas eficientemente
+        p1_corners = 0
+        p2_corners = 0
+        for corner in corners:
+            piece = board.get(corner)
+            if piece == state.game.player1.label:
+                p1_corners += 1
+            elif piece == state.game.player2.label:
+                p2_corners += 1
+        # Calcular esquinas normalizadas de [0-100]
+        if p1_corners + p2_corners == 0:
+            corners_diff = 0
+        else:
+            corners_diff = (100 *
+            ((p1_corners - p2_corners) / 
+            (p1_corners + p2_corners)))
+        
+        # Contar X squares eficientemente
+#        p1_x_squares = 0
+#        p2_x_squares = 0
+#        for sq in x_squares:
+#            piece = board.get(sq)
+#            if piece == state.game.player1.label:
+#                p1_x_squares += 1
+#            elif piece == state.game.player2.label:
+#                p2_x_squares += 1
+#        # Calcular X squares normalizadas de [0-100]
+#        if p1_x_squares + p2_x_squares == 0:
+#
+#            x_squares_diff = 0
+#        else:
+#            x_squares_diff = (100 *
+#            ((p1_x_squares - p2_x_squares) / 
+#            (p1_x_squares + p2_x_squares)))
+        
+        # Contar piezas totales eficientemente
+#        scores = state.scores
+#        # Calcular piezas totales normalizadas de [0-100]
+#        if scores[0] + scores[1] == 0:
+#
+#            score = 0
+#        else:
+#            score = (100 *
+#            ((scores[0] - scores[1]) / 
+#            (scores[0] + scores[1])))
+        
+        stab_norm = stability_component(state, perspective_label=state.game.player1.label)
+        
+        # Calcular peso dinámico para X squares según la etapa de la partida
+#        if moves_made < 20:
+#            w_score *= 0.0
+#            w_mobility *= 1.0
+#            w_x_squares *= 1.0      # X squares muy malos al inicio
+#            w_stability *= 0.0
+#        elif moves_made < 40:
+#            w_score *= 0.1
+#            w_mobility *= 0.5
+#            w_x_squares *= 0.7      # X squares malos en etapa media
+#            w_stability *= 0.3
+#        elif moves_made < 50:
+#            w_score *= 0.5
+#            w_mobility *= 0.1
+#            w_x_squares *= 0.2      # X squares menos malos en etapa tardía
+#            w_stability *= 0.7
+#        else:
+#            w_score *= 1.0
+#            w_mobility *= 0.0
+#            w_x_squares *= 0.0      # X squares neutrales al final
+#            w_stability *= 1.0
+        
+        # Calcular evaluación final
+        evaluation = (w_mobility * mobility + 
+                     w_corners * corners_diff + 
+#                     w_x_squares * (-x_squares_diff) + 
+#                     w_score * score + 
+                     w_stability * stab_norm)
+        
+        # Aplicar perspectiva del jugador MAX
+        return evaluation if p1_max else -evaluation
+
+
+
+
+
+class Solution4(StudentHeuristic):
+    def get_name(self) -> str:
+        return "rand-2"
 
     def evaluation_function(self, state: TwoPlayerGameState) -> float:
         # let's use a global function
         return func_glob(2, state)
+        
+class Solution5(StudentHeuristic):
+    def get_name(self) -> str:
+        return "RMCS"
+
+    def evaluation_function(self, state: TwoPlayerGameState) -> float:
+        # let's use a global function
+        board = state.board
+        height, width = state.game.height, state.game.width
+        corners = [(1, 1), (1, height), (width, 1), (width, height)]
+        # Contar esquinas eficientemente
+        p1_corners = 0
+        p2_corners = 0
+        for corner in corners:
+            piece = board.get(corner)
+            if piece == state.game.player1.label:
+                p1_corners += 1
+            elif piece == state.game.player2.label:
+                p2_corners += 1
+        # Calcular esquinas normalizadas de [0-100]
+        if p1_corners + p2_corners == 0:
+            corners_diff = 0
+        else:
+            corners_diff = ((p1_corners - p2_corners) / 
+                            (p1_corners + p2_corners))
+        
+        # Obtener movimientos válidos (una sola llamada por jugador)
+        valid_moves_p1 = state.game._get_valid_moves(board, state.game.player1.label)
+        valid_moves_p2 = state.game._get_valid_moves(board, state.game.player2.label)
+        
+        # Calcular movilidad normalizada de [0-100]
+        if len(valid_moves_p1) + len(valid_moves_p2) == 0:
+            mobility = 0
+        else:
+            mobility = ((len(valid_moves_p1) - len(valid_moves_p2)) / 
+                        (len(valid_moves_p1) + len(valid_moves_p2)))
+        
+        # Calcular la estabilidad normalizada de [0-100]
+        stab_norm = stability_component(state, perspective_label=state.game.player1.label)/100
+        #Normalizar de [-1, 1]
+        stab_norm = stab_norm * 2 - 1
+        
+        return func_glob(2, state) + corners_diff
