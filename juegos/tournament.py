@@ -6,6 +6,7 @@
 
 from __future__ import annotations  # For Python 3.7
 
+import p1_1311_11_Palanco_Larrondo as p
 import inspect  # for dynamic members of a module
 import os
 import sys
@@ -14,6 +15,7 @@ from abc import ABC
 from importlib import util
 import traceback
 from typing import Callable, Tuple
+import numpy as np
 
 from game import Player, TwoPlayerGameState, TwoPlayerMatch
 from heuristic import Heuristic
@@ -44,6 +46,61 @@ class Tournament(object):
         self.__max_depth = max_depth
         self.__init_match = init_match
         self.__max_eval_time = max_evaluation_time
+        self.h1_time = None
+        self.reference_measured = False
+
+    def _measure_reference_time(self, depth: int):
+        """Mide el tiempo de una partida completa con Heuristic1 como referencia"""
+        try:
+            from demo_tournament import Heuristic1
+            from game import Player
+            from strategy import MinimaxAlphaBetaStrategy
+            from heuristic import Heuristic
+            
+            # Crear dos jugadores con Heuristic1 usando EXACTAMENTE los mismos parámetros
+            ref_heuristic = Heuristic1()
+            pl1 = Player(
+                name="ref1",
+                strategy=MinimaxAlphaBetaStrategy(
+                    heuristic=Heuristic(
+                        name=ref_heuristic.get_name(),
+                        evaluation_function=ref_heuristic.evaluation_function),
+                    max_depth_minimax=depth,  # ← MISMO DEPTH que las partidas reales
+                    max_sec_per_evaluation=self.__max_eval_time,
+                    verbose=0,
+                ),
+            )
+            pl2 = Player(
+                name="ref2", 
+                strategy=MinimaxAlphaBetaStrategy(
+                    heuristic=Heuristic(
+                        name=ref_heuristic.get_name(),
+                        evaluation_function=ref_heuristic.evaluation_function),
+                    max_depth_minimax=depth,  # ← MISMO DEPTH que las partidas reales
+                    max_sec_per_evaluation=self.__max_eval_time,
+                    verbose=0,
+                ),
+            )
+            
+            # Medir tiempo de partida completa (promedio de 3 partidas)
+            # Usar EXACTAMENTE el mismo tablero que las partidas normales
+            times = []
+            for _ in range(3):
+                start = time.perf_counter()
+                # Usar el mismo __single_run que las partidas normales
+                # Esto garantiza que use el MISMO tablero inicial
+                self.__single_run(True, pl1, "ref1", pl2, "ref2", {}, {})
+                end = time.perf_counter()
+                times.append(end - start)
+            
+            self.h1_time = sum(times) / len(times)
+            self.reference_measured = True
+            print(f"Tiempo de referencia (Heuristic1, depth={depth}): {self.h1_time:.4f}s")
+            
+        except Exception as e:
+            print(f"Error midiendo tiempo de referencia: {e}")
+            self.h1_time = 0.1  # Fallback a valor estimado
+            self.reference_measured = True
 
     def __get_function_from_str(self, name: str, definition: str, max_strat: int) -> list:
         # write content in file with new name
@@ -95,6 +152,8 @@ class Tournament(object):
         each opponent. So with N strategies, a total of
         N*(N-1)*n_pairs games are played.
         """
+        time_min = np.inf
+        time_max = 0
         scores = dict()
         totals = dict()
         name_mapping = dict()
@@ -168,12 +227,26 @@ class Tournament(object):
                                         verbose=0,
                                     ),
                                 )
-
+                                # Medir tiempo de referencia si no se ha hecho (con el mismo depth)
+#                                if not self.reference_measured:
+#                                    self._measure_reference_time(depth)
+                                
+                                # Medir tiempo de la partida
+#                                start_time = time.perf_counter()
                                 self.__single_run(
                                     player1_first,
                                     pl1, name1,
                                     pl2, name2,
                                     scores, totals)
+#                                end_time = time.perf_counter()
+#                                game_time = end_time - start_time
+#                                
+#                                if self.h1_time is not None:
+#                                    if game_time > self.h1_time * 10:
+#                                        print(f"DESCALIFICADO: {game_time:.4f}s > {self.h1_time*10:.4f}s")
+#                                    else:
+#                                        print(f"OK: {game_time:.4f}s <= {self.h1_time*10:.4f}s")
+
         return scores, totals, name_mapping
 
     def __single_run(self, player1_first: bool, pl1: Player, name1: str,

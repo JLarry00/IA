@@ -8,7 +8,9 @@ Authors:
 from __future__ import annotations  # For Python 3.7
 
 import numpy as np
-import p1_gggg_mm_apellido1_apellido2 as p
+import p1_1311_11_Palanco_Larrondo as p
+import pepo
+import abril
 
 from game import Player, TwoPlayerGameState, TwoPlayerMatch
 from heuristic import simple_evaluation_function
@@ -23,15 +25,12 @@ from tournament import StudentHeuristic, Tournament
 class Heuristic1(StudentHeuristic):
 
     def get_name(self) -> str:
-        return "dummy"
+        return p.Solution1().get_name()
 
     def evaluation_function(self, state: TwoPlayerGameState) -> float:
         # Use an auxiliary function.
-        return self.dummy(123)
-
-    def dummy(self, n: int) -> int:
-        return n + 4
-
+        return p.Solution1().evaluation_function(state)
+    
 
 class Heuristic2(StudentHeuristic):
 
@@ -39,10 +38,21 @@ class Heuristic2(StudentHeuristic):
         return p.Solution2().get_name()
 
     def evaluation_function(self, state: TwoPlayerGameState) -> float:
+        # Use an auxiliary function.
         return p.Solution2().evaluation_function(state)
-
+    
 
 class Heuristic3(StudentHeuristic):
+
+    def get_name(self) -> str:
+        return p.Solution3().get_name()
+
+    def evaluation_function(self, state: TwoPlayerGameState) -> float:
+        # Use an auxiliary function.
+        return p.Solution3().evaluation_function(state)
+
+
+class Heuristic4(StudentHeuristic):
 
     def get_name(self) -> str:
         return p.Solution4().get_name()
@@ -121,12 +131,12 @@ create_match = create_reversi_match
 tour = Tournament(max_depth=3, init_match=create_match, max_evaluation_time=0.5)
 
 # if the strategies are copy-pasted here:
-strats = {'opt2': [Heuristic2], 'opt3': [Heuristic3]}
+strats = {'opt1': [Heuristic1], 'opt2': [Heuristic2], 'opt3': [Heuristic3], 'opt4': [Heuristic4]}
 # if the strategies should be loaded from files in a specific folder:
 # folder_name = "folder_strat" # name of the folder where the strategy files are located
 # strats = tour.load_strategies_from_folder(folder=folder_name, max_strat=3)
 
-n = 10
+n = 25
 scores, totals, names = tour.run(
     student_strategies=strats,
     increasing_depth=False,
