@@ -131,12 +131,12 @@ create_match = create_reversi_match
 tour = Tournament(max_depth=3, init_match=create_match, max_evaluation_time=0.5)
 
 # if the strategies are copy-pasted here:
-strats = {'opt1': [Heuristic1], 'opt2': [Heuristic2], 'opt3': [Heuristic3], 'opt4': [Heuristic4]}
+strats = {'1': [Heuristic1], '2': [Heuristic2], '3': [Heuristic3], '4': [Heuristic4]}
 # if the strategies should be loaded from files in a specific folder:
 # folder_name = "folder_strat" # name of the folder where the strategy files are located
 # strats = tour.load_strategies_from_folder(folder=folder_name, max_strat=3)
 
-n = 25
+n = 50
 scores, totals, names = tour.run(
     student_strategies=strats,
     increasing_depth=False,

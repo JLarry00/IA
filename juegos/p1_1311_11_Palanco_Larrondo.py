@@ -104,7 +104,7 @@ def stability_component(state, perspective_label: str = None) -> float:
 
 class Solution1(StudentHeuristic):
     def get_name(self) -> str:
-        return "MCS"
+        return "JA1"
 
     def evaluation_function(self, state: TwoPlayerGameState) -> float:
         # Determinar quién es MAX (optimización: evitar múltiples llamadas)
@@ -129,7 +129,7 @@ class Solution1(StudentHeuristic):
         if p1_corners + p2_corners == 0:
             corners_diff = 0
         else:
-            corners_diff = ((p1_corners - p2_corners) / 
+            corners_diff = 1000*((p1_corners - p2_corners) / 
                             (p1_corners + p2_corners))
         
         # Obtener movimientos válidos (una sola llamada por jugador)
@@ -140,11 +140,12 @@ class Solution1(StudentHeuristic):
         if valid_moves_p1 + valid_moves_p2 == 0:
             mobility = 0
         else:
-            mobility = ((valid_moves_p1 - valid_moves_p2) / 
+            mobility = 1000*((valid_moves_p1 - valid_moves_p2) / 
                         (valid_moves_p1 + valid_moves_p2))
         
         # Calcular la estabilidad normalizada de [0-100]
-        stab_norm = stability_component(state, perspective_label=state.game.player1.label)
+        stab_norm = 1000*stability_component(state, perspective_label=state.game.player1.label)
+
 
         evaluation = corners_diff + mobility + stab_norm
         
@@ -152,7 +153,7 @@ class Solution1(StudentHeuristic):
 
 class Solution2(StudentHeuristic):
     def get_name(self) -> str:
-        return "MCSW"
+        return "JuanAbril2"
 
     def evaluation_function(self, state: TwoPlayerGameState) -> float:
         # Si estado final, gana la que más casillas tenga
@@ -162,9 +163,9 @@ class Solution2(StudentHeuristic):
         
 
         # PESOS DE CADA PARÁMETRO
-        w_mobility = 1.0                # Peso para movimientos válidos
-        w_corners = 3.0                 # Peso para esquinas
-        w_stability = 1.0               # Peso para la estabilidad del tablero
+        w_mobility = 1.12                # Peso para movimientos válidos
+        w_corners = 3.25                 # Peso para esquinas
+        w_stability = 1.11               # Peso para la estabilidad del tablero
         
         # Determinar quién es MAX (optimización: evitar múltiples llamadas)
         p1_max = state.is_player_max(state.player1)
@@ -205,7 +206,7 @@ class Solution2(StudentHeuristic):
             ((p1_corners - p2_corners) / 
             (p1_corners + p2_corners)))
         
-        stab_norm = stability_component(state, perspective_label=state.game.player1.label)
+        stab_norm = 100*stability_component(state, perspective_label=state.game.player1.label)
         
         # Calcular evaluación final
         evaluation = (w_mobility * mobility + 
@@ -220,7 +221,7 @@ class Solution2(StudentHeuristic):
 class Solution3(StudentHeuristic):
     
     def get_name(self) -> str:
-        return "MCSTW"
+        return "AbrilJuan3"
 
     def evaluation_function(self, state: TwoPlayerGameState) -> float:
         # Si estado final, gana la que más casillas tenga
@@ -278,24 +279,24 @@ class Solution3(StudentHeuristic):
         max = width*height - 4
         if moves_made < max*(20/60):
 #            mobility * ((p1_corners + p2_corners) / 7)
-            w_mobility *= 35
-            w_corners *= 50
+            w_mobility *= 33
+            w_corners *= 52
             w_stability *= 15
         elif moves_made < max*(40/60):
 #            mobility * ((p1_corners + p2_corners) / 12)
-            w_mobility *= 45
-            w_corners *= 32
+            w_mobility *= 46
+            w_corners *= 31
             w_stability *= 23
         elif moves_made < max*(50/60):
 #            mobility * ((p1_corners + p2_corners) / 6)
-            w_mobility *= 23
-            w_corners *= 27
-            w_stability *= 50
+            w_mobility *= 22
+            w_corners *= 29
+            w_stability *= 49
         else:
 #            mobility * ((p1_corners + p2_corners) / 4)
-            w_mobility *= 17
+            w_mobility *= 16
             w_corners *= 23
-            w_stability *= 60
+            w_stability *= 61
         
         # Calcular evaluación final
         evaluation = (w_mobility * mobility + 
@@ -304,33 +305,3 @@ class Solution3(StudentHeuristic):
         
         # Aplicar perspectiva del jugador MAX
         return evaluation if p1_max else -evaluation
-
-
-
-
-
-
-
-class Solution4(StudentHeuristic):
-    def get_name(self) -> str:
-        return "rand"
-
-    def evaluation_function(self, state: TwoPlayerGameState) -> float:
-        """Return a random value, except for terminal game states."""
-        state_value = 2*np.random.rand() - 1
-
-        if state.end_of_game:
-            scores = state.scores
-            
-            # Evaluation of the state from the point of view of MAX
-            assert isinstance(scores, (Sequence, np.ndarray))
-            score_difference = scores[0] - scores[1]
-
-            if state.is_player_max(state.player1):
-                state_value = score_difference
-            elif state.is_player_max(state.player2):
-                state_value = - score_difference
-            else:
-                raise ValueError('Player MAX not defined')
-
-        return state_value
