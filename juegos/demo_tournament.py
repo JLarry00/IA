@@ -9,11 +9,8 @@ from __future__ import annotations  # For Python 3.7
 
 import numpy as np
 import p1_1311_11_Palanco_Larrondo as p
-import pepo
-import abril
-
+import random
 from game import Player, TwoPlayerGameState, TwoPlayerMatch
-from heuristic import simple_evaluation_function
 from tictactoe import TicTacToe
 from reversi import (
     Reversi,
@@ -55,10 +52,10 @@ class Heuristic3(StudentHeuristic):
 class Heuristic4(StudentHeuristic):
 
     def get_name(self) -> str:
-        return p.Solution4().get_name()
+        return "4"
 
     def evaluation_function(self, state: TwoPlayerGameState) -> float:
-        return p.Solution4().evaluation_function(state)
+        return random.random()
 
 
 def create_reversi_match(player1: Player, player2: Player) -> TwoPlayerMatch:
@@ -136,7 +133,7 @@ strats = {'1': [Heuristic1], '2': [Heuristic2], '3': [Heuristic3], '4': [Heurist
 # folder_name = "folder_strat" # name of the folder where the strategy files are located
 # strats = tour.load_strategies_from_folder(folder=folder_name, max_strat=3)
 
-n = 50
+n = 10
 scores, totals, names = tour.run(
     student_strategies=strats,
     increasing_depth=False,
