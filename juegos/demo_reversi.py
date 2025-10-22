@@ -40,9 +40,9 @@ player_minimax3 = Player(
     name='Minimax_3',
     strategy=MinimaxStrategy(
         heuristic=heuristic,
-        max_depth_minimax=3,
-        max_sec_per_evaluation=1,  # it should not fail
-        verbose=1,
+        max_depth_minimax=4,
+        max_sec_per_evaluation=0,  # it should not fail
+        verbose=0,
     ),
 )
 
@@ -60,7 +60,7 @@ player_alphabeta1 = Player(
     name='AlphaBeta_1',
     strategy=MinimaxAlphaBetaStrategy(
         heuristic=heuristic,
-        max_depth_minimax=3,
+        max_depth_minimax=4,
         verbose=0
     )
 )
@@ -75,8 +75,8 @@ player_alphabeta2 = Player(
 )
 
 ## If you want to play against one of your heuristics, you should do the following
-from p1_gggg_mm_apellido1_apellido2 import Solution2  # import your StudentHeuristic here
-my_heuristic = Solution2() # instantiate your heuristic here
+from heuristic import heuristic  # import your StudentHeuristic here
+my_heuristic = heuristic # instantiate your heuristic here
 my_player = Player(
     name=my_heuristic.get_name(),
     strategy=MinimaxStrategy(  # MinimaxAlphaBetaStrategy(
@@ -99,7 +99,7 @@ my_player = Player(
 player_a, player_b = player_minimax4, player_minimax3
 
 # minimax alpha-beta vs minimax alpha-beta player
-# player_a, player_b = player_alphabeta1, player_alphabeta2
+#player_a, player_b = player_alphabeta1, player_alphabeta2
 
 """
 Here you can initialize the player that moves first
@@ -115,6 +115,14 @@ initial_board = (
      'WBWBB..',
      '.W.WWW.',
      '.BBWBWB']
+)
+initial_board = (
+    ['........',
+     '........',
+     '...WB...',
+     '...BW...',
+     '........',
+     '........']
 )
 
 # NOTE Uncoment to use standard initial board.

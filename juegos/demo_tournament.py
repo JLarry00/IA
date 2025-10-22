@@ -55,7 +55,7 @@ class Heuristic4(StudentHeuristic):
         return "4"
 
     def evaluation_function(self, state: TwoPlayerGameState) -> float:
-        return random.random()
+        return 0
 
 
 def create_reversi_match(player1: Player, player2: Player) -> TwoPlayerMatch:
@@ -125,15 +125,15 @@ create_match = create_reversi_match
 # since these heuristics do not really assume anything about the Reversi game,
 # they can also be used for TicTacToe, but this will not be true in general
 # create_match = create_tictactoe_match
-tour = Tournament(max_depth=3, init_match=create_match, max_evaluation_time=0.5)
+tour = Tournament(max_depth=6, init_match=create_match, max_evaluation_time=0.5)
 
 # if the strategies are copy-pasted here:
-strats = {'1': [Heuristic1], '2': [Heuristic2], '3': [Heuristic3], '4': [Heuristic4]}
+strats = {'1': [Heuristic4], '2': [Heuristic4]}
 # if the strategies should be loaded from files in a specific folder:
 # folder_name = "folder_strat" # name of the folder where the strategy files are located
 # strats = tour.load_strategies_from_folder(folder=folder_name, max_strat=3)
 
-n = 10
+n = 5
 scores, totals, names = tour.run(
     student_strategies=strats,
     increasing_depth=False,

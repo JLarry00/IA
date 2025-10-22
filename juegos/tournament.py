@@ -152,35 +152,69 @@ class Tournament(object):
         each opponent. So with N strategies, a total of
         N*(N-1)*n_pairs games are played.
         """
-        time_min = np.inf
-        time_max = 0
+        times = {"Minimax": 0, "AlphaBeta": 0}
+        MinimaxStrats = {"Minimax": MinimaxStrategy, "AlphaBeta": MinimaxAlphaBetaStrategy}
+        n = sum(len(v) for v in student_strategies.values())
+
         scores = dict()
         totals = dict()
         name_mapping = dict()
-        for student1 in student_strategies:
-            strats1 = student_strategies[student1]
-            for student2 in student_strategies:
-                if student1 > student2:
-                    continue
-                if student1 == student2 and not allow_selfmatch:
-                    continue
-                strats2 = student_strategies[student2]
-                for player1 in strats1:
-                    for player2 in strats2:
-                        # we now instantiate the players
-                        for pair in range(2*n_pairs):
-                            player1_first = (pair % 2) == 1
-                            sh1 = player1()
-                            name1 = student1 + "_" + sh1.get_name()
-                            name_mapping[name1] = sh1.get_name()
-                            sh2 = player2()
-                            name2 = student2 + "_" + sh2.get_name()
-                            name_mapping[name2] = sh2.get_name()
-                            if increasing_depth:
-                                for depth in range(1, self.__max_depth):
+        for strategy in MinimaxStrats:
+            strategy_name = strategy  # Variable que guarda la cadena clave de MinimaxStrats
+            strategy_class = MinimaxStrats[strategy]  # Variable que guarda la clase correspondiente
+            
+            game_time = 0
+            for student1 in student_strategies:
+                strats1 = student_strategies[student1]
+                for student2 in student_strategies:
+                    if student1 > student2:
+                        continue
+                    if student1 == student2 and not allow_selfmatch:
+                        continue
+                    strats2 = student_strategies[student2]
+                    for player1 in strats1:
+                        for player2 in strats2:
+                            # we now instantiate the players
+                            for pair in range(2*n_pairs):
+                                player1_first = (pair % 2) == 1
+                                sh1 = player1()
+                                name1 = student1 + "_" + sh1.get_name()
+                                name_mapping[name1] = sh1.get_name()
+                                sh2 = player2()
+                                name2 = student2 + "_" + sh2.get_name()
+                                name_mapping[name2] = sh2.get_name()
+                                if increasing_depth:
+                                    for depth in range(1, self.__max_depth):
+                                        pl1 = Player(
+                                            name=name1,
+                                            strategy=strategy_class(  # Usa la clase correspondiente
+                                                heuristic=Heuristic(
+                                                    name=sh1.get_name(),
+                                                    evaluation_function=sh1.evaluation_function),
+                                                max_depth_minimax=depth,
+                                                max_sec_per_evaluation=self.__max_eval_time,
+                                                verbose=0,
+                                            ),
+                                        )
+                                        pl2 = Player(
+                                            name=name2,
+                                            strategy=strategy_class(  # Usa la clase correspondiente
+                                                heuristic=Heuristic(
+                                                    name=sh2.get_name(),
+                                                    evaluation_function=sh2.evaluation_function),
+                                                max_depth_minimax=depth,
+                                                max_sec_per_evaluation=self.__max_eval_time,
+                                                verbose=0,
+                                            ),
+                                        )
+
+                                        self.__single_run(
+                                            player1_first, pl1, name1, pl2, name2, scores, totals)
+                                else:
+                                    depth = self.__max_depth
                                     pl1 = Player(
                                         name=name1,
-                                        strategy=MinimaxAlphaBetaStrategy(  # MinimaxStrategy(
+                                        strategy=strategy_class(  # Usa la clase correspondiente
                                             heuristic=Heuristic(
                                                 name=sh1.get_name(),
                                                 evaluation_function=sh1.evaluation_function),
@@ -191,7 +225,7 @@ class Tournament(object):
                                     )
                                     pl2 = Player(
                                         name=name2,
-                                        strategy=MinimaxAlphaBetaStrategy(  # MinimaxStrategy(
+                                        strategy=strategy_class(  # Usa la clase correspondiente
                                             heuristic=Heuristic(
                                                 name=sh2.get_name(),
                                                 evaluation_function=sh2.evaluation_function),
@@ -200,53 +234,29 @@ class Tournament(object):
                                             verbose=0,
                                         ),
                                     )
-
+                                    # Medir tiempo de referencia si no se ha hecho (con el mismo depth)
+#                                    if not self.reference_measured:
+#                                        self._measure_reference_time(depth)
+                                    
+                                    # Medir tiempo de la partida
+                                    start_time = time.perf_counter()
                                     self.__single_run(
-                                        player1_first, pl1, name1, pl2, name2, scores, totals)
-                            else:
-                                depth = self.__max_depth
-                                pl1 = Player(
-                                    name=name1,
-                                    strategy=MinimaxAlphaBetaStrategy(  # MinimaxStrategy(
-                                        heuristic=Heuristic(
-                                            name=sh1.get_name(),
-                                            evaluation_function=sh1.evaluation_function),
-                                        max_depth_minimax=depth,
-                                        max_sec_per_evaluation=self.__max_eval_time,
-                                        verbose=0,
-                                    ),
-                                )
-                                pl2 = Player(
-                                    name=name2,
-                                    strategy=MinimaxAlphaBetaStrategy(  # MinimaxStrategy(
-                                        heuristic=Heuristic(
-                                            name=sh2.get_name(),
-                                            evaluation_function=sh2.evaluation_function),
-                                        max_depth_minimax=depth,
-                                        max_sec_per_evaluation=self.__max_eval_time,
-                                        verbose=0,
-                                    ),
-                                )
-                                # Medir tiempo de referencia si no se ha hecho (con el mismo depth)
-#                                if not self.reference_measured:
-#                                    self._measure_reference_time(depth)
-                                
-                                # Medir tiempo de la partida
-#                                start_time = time.perf_counter()
-                                self.__single_run(
-                                    player1_first,
-                                    pl1, name1,
-                                    pl2, name2,
-                                    scores, totals)
-#                                end_time = time.perf_counter()
-#                                game_time = end_time - start_time
-#                                
-#                                if self.h1_time is not None:
-#                                    if game_time > self.h1_time * 10:
-#                                        print(f"DESCALIFICADO: {game_time:.4f}s > {self.h1_time*10:.4f}s")
-#                                    else:
-#                                        print(f"OK: {game_time:.4f}s <= {self.h1_time*10:.4f}s")
+                                        player1_first,
+                                        pl1, name1,
+                                        pl2, name2,
+                                        scores, totals)
+                                    end_time = time.perf_counter()
+                                    game_time += end_time - start_time
+                                    
+#                                    if self.h1_time is not None:
+#                                        if game_time > self.h1_time * 10:
+#                                            print(f"DESCALIFICADO: {game_time:.4f}s > {self.h1_time*10:.4f}s")
+#                                        else:
+#                                            print(f"OK: {game_time:.4f}s <= {self.h1_time*10:.4f}s")
 
+            game_time /= (n*(n-1)*n_pairs)
+            times[strategy_name] = f"{game_time:.3f}"
+        print(times)
         return scores, totals, name_mapping
 
     def __single_run(self, player1_first: bool, pl1: Player, name1: str,
